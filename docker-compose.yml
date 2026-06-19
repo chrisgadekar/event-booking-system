@@ -1,0 +1,53 @@
+# Full-stack stack: MongoDB (replica set) + API + web client.
+#   docker compose up --build
+# Then seed once:  docker compose exec backend npm run seed
+# Web: http://localhost:8080   API: http://localhost:5000
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    command: ['--replSet', 'rs0', '--bind_ip_all']
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: >
+        mongosh --quiet --eval "try { rs.status().ok } catch (e) {
+          rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }] }).ok
+        }"
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/sortmyscene?directConnection=true
+      JWT_SECRET: change_this_in_production
+      JWT_EXPIRES_IN: 7d
+      RESERVATION_MINUTES: 10
+      CLIENT_ORIGIN: http://localhost:8080
+      NODE_ENV: production
+    ports:
+      - '5000:5000'
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:5000/api
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - '8080:80'
+
+volumes:
+  mongo_data:

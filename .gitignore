@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment / secrets (keep .env.example committed)
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Logs
+*.log
+
+# Claude Code (local agent config — do not commit)
+.claude/
+CLAUDE.md
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
