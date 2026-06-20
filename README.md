@@ -1,4 +1,4 @@
-# SortMyScene — Event Ticket Booking
+Event Ticket Booking
 
 A simplified event ticket booking flow focused on **seat reservation** and **booking
 confirmation**. Users browse events, pick seats from a live seat map, hold them for a
